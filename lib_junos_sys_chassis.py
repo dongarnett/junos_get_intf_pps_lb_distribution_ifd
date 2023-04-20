@@ -156,3 +156,65 @@ def call_and_parse_pps_output_ifd(dut_host, intf_list):
                 #print(output_pps)
                 output_pps_list.append(output_pps)
     return output_pps_list
+
+
+def validate_lag_load_balancing(lag_id, intf_list, link_cnt, input_intf_pps_list, output_intf_pps_list):
+    # DETERMINE LOAD BALANCING DISTRIBUTION
+    '''Obtain combined input and output PPS rates for LAG member ports in order to:
+        1. Determine ideal load balancing distribution among member ports
+        2. Determine actual load balancing distribution among member ports
+    '''
+    combined_input_pps = 0
+    i = 0
+    for intf in intf_list:
+        combined_input_pps = int(input_intf_pps_list[i]) + combined_input_pps
+        i += 1
+    combined_output_pps = 0
+    i = 0
+    for intf in intf_list:
+        combined_output_pps = int(output_intf_pps_list[i]) + combined_output_pps
+        i += 1
+    print("###########################################")
+    print("####### COMBINED INPUT/OUTPUT PPS #########")
+    print("###########################################")
+    print(f'LAG {lag_id} combined member port input pps rate: {combined_input_pps}')
+    print(f'LAG {lag_id} combined member port output pps rate: {combined_output_pps}')
+    ideal_lb_variance_input_pps = combined_input_pps / link_cnt
+    ideal_lb_variance_output_pps = combined_output_pps / link_cnt
+    print("##########################################")
+    print("# IDEAL PER MEMBER PORT INPUT/OUTPUT PPS #")
+    print("##########################################")
+    print(f'LAG {lag_id} ideal input pps rate load balancing for member ports: {ideal_lb_variance_input_pps}')
+    print(f'LAG {lag_id} ideal output pps rate load balancing for member ports: {ideal_lb_variance_output_pps}')
+    i = 0
+    input_lb_pps_distribution_list = []
+    output_lb_pps_distribution_list = []
+    for intf in intf_list:
+        actual_input_pps_lb_distribution = int(input_intf_pps_list[i]) / combined_input_pps
+        input_lb_pps_distribution_list.append(actual_input_pps_lb_distribution)
+        actual_output_pps_lb_distribution = int(output_intf_pps_list[i]) / combined_output_pps
+        output_lb_pps_distribution_list.append(actual_output_pps_lb_distribution)
+        i += 1
+    i = 0
+    print("##############################################")
+    print("# PER MEMBER PORT INPUT TRAFFIC DISTRIBUTION #")
+    print("##############################################")
+    for intf in intf_list:
+        print(f'LAG {lag_id} member port {intf_list[i]} input pps distribution {input_lb_pps_distribution_list[i]}')
+        i += 1
+    i = 0
+    print("###############################################")
+    print("# PER MEMBER PORT OUTPUT TRAFFIC DISTRIBUTION #")
+    print("###############################################")
+    for intf in intf_list:
+        print(f'LAG {lag_id} member port {intf_list[i]} output pps distribution {output_lb_pps_distribution_list[i]}')
+        i += 1
+    dict_intf_stats = {
+                "combined_input_pps" : combined_input_pps,
+                "combined_output_pps" : combined_output_pps,
+                "ideal_lb_variance_input_pps" : ideal_lb_variance_input_pps,
+                "ideal_lb_variance_output_pps" : ideal_lb_variance_output_pps,
+                "input_lb_pps_distribution_list" : input_lb_pps_distribution_list,
+                "output_lb_pps_distribution_list" : output_lb_pps_distribution_list
+                }
+    return dict_intf_stats
