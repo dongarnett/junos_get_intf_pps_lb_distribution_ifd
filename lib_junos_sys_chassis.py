@@ -2,7 +2,6 @@ import argparse, paramiko, os, re, sys, time
 from lib_ssh_connectivity import Device
 from lib_ssh_connectivity import create_handle_quiet
 from pprint import pprint
-#from collections import defaultdict
 
 
 
@@ -33,11 +32,8 @@ def call_and_parse_packet_cnt_input_ifd(dut_host, intf_list):
     input_pps_list = []
     for intf in intf_list:
         output_to_parse = get_intf_packet_cnt_input_ifd(dut_host, intf)
-        #print(output_to_parse)
         split_data = output_to_parse.split('\r\n')
-        #print(split_data)
         for line in split_data:
-            #print(line)
             if "packets" in line:
                 parsed_items = line.split()
                 print(parsed_items)
@@ -73,11 +69,8 @@ def call_and_parse_packet_cnt_output_ifd(dut_host, intf_list):
     output_pps_list = []
     for intf in intf_list:
         output_to_parse = get_intf_packet_cnt_output_ifd(dut_host, intf)
-        #print(output_to_parse)
         split_data = output_to_parse.split('\r\n')
-        #print(split_data)
         for line in split_data:
-            #print(line)
             if "packets" in line:
                 parsed_items = line.split()
                 print(parsed_items)
